@@ -5,6 +5,20 @@ This doc covers the non-obvious parts of getting that to work.
 
 ## Build steps
 
+The convenience script is the fast path:
+
+```bash
+./scripts/run-web.sh
+```
+
+It runs the cargo build, assembles `dist/`, fetches `mq_js_bundle.js`
+on first run, and starts `basic-http-server` on `localhost:4000`. The
+bundle is cached, so subsequent runs are faster — delete
+`dist/mq_js_bundle.js` to force a refresh after bumping macroquad.
+
+If you want to do it by hand (e.g. for debugging or building a
+release archive), here's what the script does:
+
 ```bash
 rustup target add wasm32-unknown-unknown
 cargo build --release --target wasm32-unknown-unknown
@@ -23,8 +37,8 @@ curl -fL -o dist/mq_js_bundle.js \
 basic-http-server dist/
 ```
 
-`.github/workflows/wasm.yml` does the same on CI and deploys to GitHub
-Pages.
+`.github/workflows/wasm.yml` runs the manual steps on CI and deploys to
+GitHub Pages.
 
 ## The `--allow-undefined` link error (Rust 1.96+)
 

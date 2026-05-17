@@ -1,6 +1,5 @@
 //! Binary entrypoint. Wires the controller to the macroquad event loop.
 
-mod app;
 mod viz;
 
 // Wasm `getrandom` shim — see Cargo.toml for context.
@@ -43,7 +42,7 @@ mod wasm_rand_shim {
 #[cfg(target_arch = "wasm32")]
 getrandom::register_custom_getrandom!(wasm_rand_shim::fill_bytes);
 
-use app::Controller;
+use clusterlab::app::Controller;
 use macroquad::prelude::*;
 use viz::{
     camera::OrbitCamera,

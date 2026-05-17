@@ -4,11 +4,8 @@
 //! place points anywhere with the mouse and still navigate around them.
 
 use clusterlab::geometry::Point2;
+pub use clusterlab::world::WORLD_BOUNDS;
 use macroquad::prelude::*;
-
-/// The world-space bounds we generate data within. The camera fits this
-/// rectangle to the screen at zoom = 1.0.
-pub const WORLD_BOUNDS: (f32, f32, f32, f32) = (0.0, 0.0, 1000.0, 700.0);
 
 pub struct Camera2D {
     /// World-space point currently at the screen center.

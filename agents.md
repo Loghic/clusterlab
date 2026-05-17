@@ -14,6 +14,7 @@ Wrap commands in backticks so they can be copy-pasted directly.
 - Format check: `cargo fmt --all -- --check`
 - Lint (CI mode): `cargo clippy --all-targets --all-features -- -D warnings`
 - WASM build: `cargo build --release --target wasm32-unknown-unknown`
+- WASM dev (build + serve in one go): `./scripts/run-web.sh`
 
 CI runs fmt-check + clippy-deny-warnings + tests. Pre-commit hooks run the
 same locally. **Both must pass before any commit.**
@@ -25,11 +26,13 @@ System packages required on Linux for the desktop build:
 
 These are non-negotiable and break the build / loader if violated:
 
-1. **No macroquad imports in pure-logic modules.** Only `viz/`, `app/`,
-   and `main.rs` may use `macroquad::*`. The other modules (`kmeans`,
-   `geometry`, `animation`, `datasets`) must stay pure Rust so they
-   compile to wasm and stay testable. Re-check this constraint after
-   moving any code.
+1. **No macroquad imports in pure-logic modules.** Only `viz/` and
+   `main.rs` may use `macroquad::*`. All library modules (`kmeans`,
+   `geometry`, `animation`, `datasets`, `app`, `world`) must stay pure
+   Rust so they compile to wasm and stay testable. The `app::Controller`
+   state machine in particular is library-side specifically so it can
+   be unit-tested without macroquad — keep it that way. Re-check this
+   constraint after moving any code.
 2. **Never enable the `getrandom` `js` feature.** It transitively pulls
    `wasm-bindgen`, which is incompatible with macroquad's `mq_js_bundle.js`
    loader (`__wbindgen_placeholder__` errors at runtime). On wasm we use

@@ -4,10 +4,8 @@
 use crate::viz::camera::OrbitCamera;
 use crate::viz::scene_2d::cluster_color;
 use clusterlab::geometry::{bisector_planes, Point3};
+pub use clusterlab::world::HALF_EXTENT;
 use macroquad::prelude::*;
-
-/// World bounds for 3D (centered cube around the origin).
-pub const HALF_EXTENT: f32 = 5.0;
 
 /// Draws ground grid, planes (if enabled), points, and centroids.
 pub fn draw_scene(

@@ -45,7 +45,26 @@ sudo apt-get install libx11-dev libxi-dev libgl1-mesa-dev libasound2-dev pkg-con
 ## Run in the browser (WebAssembly)
 
 ```bash
+# One-time:
 rustup target add wasm32-unknown-unknown
+cargo install basic-http-server
+
+# Build + serve in one command:
+./scripts/run-web.sh
+```
+
+Then open <http://localhost:4000>.
+
+The script builds the wasm, copies it into `dist/`, downloads
+`mq_js_bundle.js` if it isn't already cached there, and serves
+everything on `localhost:4000`. To force a fresh bundle (e.g. after
+bumping macroquad), delete `dist/mq_js_bundle.js` and re-run the
+script.
+
+If you want to do the steps manually instead, here's what the script
+does:
+
+```bash
 cargo build --release --target wasm32-unknown-unknown
 
 mkdir -p dist
@@ -61,12 +80,8 @@ cp web/index.html dist/
 curl -fL -o dist/mq_js_bundle.js \
   https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
 
-# Any static server will do; for example:
-cargo install basic-http-server
 basic-http-server dist/
 ```
-
-Then open <http://localhost:4000>.
 
 ## Controls
 
@@ -149,12 +164,13 @@ contribution rules (also useful for human contributors).
 src/
 ├── lib.rs               re-exports the pure-logic modules
 ├── main.rs              binary entrypoint + wasm getrandom shim
+├── world.rs             shared constants + DatasetChoice enum
 ├── kmeans/              algorithm, distance, centroid, state
 ├── geometry/            Point2/3, Voronoi (edges + 3D planes), sampling, PCA
 ├── datasets/            embedded Fisher iris + dataset loaders
 ├── animation/           lerp, smoothstep, timelines with hold phase
-├── viz/                 macroquad rendering, cameras, UI
-└── app/                 controller glue
+├── app/                 controller state machine (library-side, no rendering)
+└── viz/                 macroquad rendering, cameras, UI
 tests/                   integration tests for the library
 docs/                    architecture, algorithm, module graph, animation, datasets
 web/                     wasm host HTML

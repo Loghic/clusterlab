@@ -1,19 +1,19 @@
-//! Top-level controller: owns state and orchestrates algorithm + animation + viz.
+//! Top-level controller: owns state and orchestrates the algorithm,
+//! animation timeline, and dataset switching. No rendering — the binary
+//! crate's `main.rs` reads controller state each frame and renders it
+//! via macroquad.
 
-use clusterlab::animation::{Timeline2D, Timeline3D};
-use clusterlab::datasets::{iris_2d, iris_3d};
-use clusterlab::geometry::{
+use crate::animation::{Timeline2D, Timeline3D};
+use crate::datasets::{iris_2d, iris_3d};
+use crate::geometry::{
     generate_blobs_2d, generate_blobs_3d, generate_moons_2d, generate_moons_3d, Point2, Point3,
 };
-use clusterlab::kmeans::{
+use crate::kmeans::{
     assign_2d, assign_3d, init_random_2d, init_random_3d, step_2d, step_3d, Euclidean,
     KMeansState2D, KMeansState3D, StepOutcome,
 };
+use crate::world::{bounds_3d, DatasetChoice, HALF_EXTENT, WORLD_BOUNDS};
 use rand::{rngs::StdRng, SeedableRng};
-
-use crate::viz::camera2d::WORLD_BOUNDS;
-use crate::viz::scene_3d::HALF_EXTENT;
-use crate::viz::ui::DatasetChoice;
 
 const CONVERGENCE_THRESHOLD: f32 = 0.05;
 const ANIMATION_DURATION: f32 = 0.5;
@@ -68,33 +68,9 @@ impl Controller {
     pub fn new(seed: u64, k: usize) -> Self {
         let mut rng = StdRng::seed_from_u64(seed);
         let pts_2d = generate_blobs_2d(&mut rng, N_POINTS_2D, NUM_BLOBS, BLOB_STD_2D, WORLD_BOUNDS);
-        let pts_3d = generate_blobs_3d(
-            &mut rng,
-            N_POINTS_3D,
-            NUM_BLOBS,
-            BLOB_STD_3D,
-            (
-                -HALF_EXTENT,
-                -HALF_EXTENT,
-                -HALF_EXTENT,
-                HALF_EXTENT,
-                HALF_EXTENT,
-                HALF_EXTENT,
-            ),
-        );
+        let pts_3d = generate_blobs_3d(&mut rng, N_POINTS_3D, NUM_BLOBS, BLOB_STD_3D, bounds_3d());
         let cs_2d = init_random_2d(&mut rng, k, WORLD_BOUNDS);
-        let cs_3d = init_random_3d(
-            &mut rng,
-            k,
-            (
-                -HALF_EXTENT,
-                -HALF_EXTENT,
-                -HALF_EXTENT,
-                HALF_EXTENT,
-                HALF_EXTENT,
-                HALF_EXTENT,
-            ),
-        );
+        let cs_3d = init_random_3d(&mut rng, k, bounds_3d());
 
         let mut state_2d = KMeansState2D::new(pts_2d, cs_2d.clone());
         let mut state_3d = KMeansState3D::new(pts_3d, cs_3d.clone());
@@ -139,18 +115,7 @@ impl Controller {
     /// Random new centroids; sets these as the new "initial" snapshot.
     pub fn reset_centroids_random(&mut self) {
         self.state_2d.centroids = init_random_2d(&mut self.rng, self.k, WORLD_BOUNDS);
-        self.state_3d.centroids = init_random_3d(
-            &mut self.rng,
-            self.k,
-            (
-                -HALF_EXTENT,
-                -HALF_EXTENT,
-                -HALF_EXTENT,
-                HALF_EXTENT,
-                HALF_EXTENT,
-                HALF_EXTENT,
-            ),
-        );
+        self.state_3d.centroids = init_random_3d(&mut self.rng, self.k, bounds_3d());
         self.initial_centroids_2d = self.state_2d.centroids.clone();
         self.initial_centroids_3d = self.state_3d.centroids.clone();
         self.after_centroids_changed();
@@ -166,18 +131,7 @@ impl Controller {
             self.initial_centroids_2d = init_random_2d(&mut self.rng, self.k, WORLD_BOUNDS);
         }
         if self.initial_centroids_3d.len() != self.k {
-            self.initial_centroids_3d = init_random_3d(
-                &mut self.rng,
-                self.k,
-                (
-                    -HALF_EXTENT,
-                    -HALF_EXTENT,
-                    -HALF_EXTENT,
-                    HALF_EXTENT,
-                    HALF_EXTENT,
-                    HALF_EXTENT,
-                ),
-            );
+            self.initial_centroids_3d = init_random_3d(&mut self.rng, self.k, bounds_3d());
         }
         self.state_2d.centroids = self.initial_centroids_2d.clone();
         self.state_3d.centroids = self.initial_centroids_3d.clone();
@@ -249,24 +203,13 @@ impl Controller {
     }
 
     fn regenerate_3d_for_current_dataset(&mut self) {
-        let bounds_3d = (
-            -HALF_EXTENT,
-            -HALF_EXTENT,
-            -HALF_EXTENT,
-            HALF_EXTENT,
-            HALF_EXTENT,
-            HALF_EXTENT,
-        );
+        let bounds = bounds_3d();
         let pts = match self.current_dataset {
-            DatasetChoice::BlobsRandom => generate_blobs_3d(
-                &mut self.rng,
-                N_POINTS_3D,
-                NUM_BLOBS,
-                BLOB_STD_3D,
-                bounds_3d,
-            ),
+            DatasetChoice::BlobsRandom => {
+                generate_blobs_3d(&mut self.rng, N_POINTS_3D, NUM_BLOBS, BLOB_STD_3D, bounds)
+            }
             DatasetChoice::Moons => {
-                generate_moons_3d(&mut self.rng, N_POINTS_3D, MOONS_NOISE, bounds_3d)
+                generate_moons_3d(&mut self.rng, N_POINTS_3D, MOONS_NOISE, bounds)
             }
             DatasetChoice::Iris => iris_3d(HALF_EXTENT).points,
         };
@@ -429,18 +372,7 @@ impl Controller {
 
     fn restart_for_loop(&mut self) {
         if self.mode_3d {
-            self.state_3d.centroids = init_random_3d(
-                &mut self.rng,
-                self.k,
-                (
-                    -HALF_EXTENT,
-                    -HALF_EXTENT,
-                    -HALF_EXTENT,
-                    HALF_EXTENT,
-                    HALF_EXTENT,
-                    HALF_EXTENT,
-                ),
-            );
+            self.state_3d.centroids = init_random_3d(&mut self.rng, self.k, bounds_3d());
             self.state_3d.iteration = 0;
         } else {
             self.state_2d.centroids = init_random_2d(&mut self.rng, self.k, WORLD_BOUNDS);

@@ -4,27 +4,9 @@
 //! When collapsed, the panel shrinks to a thin strip with just the
 //! iteration counter so you can watch the animation.
 
+pub use clusterlab::world::DatasetChoice;
 use macroquad::prelude::*;
 use macroquad::ui::{hash, root_ui, widgets};
-
-/// Dataset choices the user can pick from the menu. Works in 2D and 3D.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum DatasetChoice {
-    BlobsRandom,
-    Moons,
-    Iris,
-}
-
-impl DatasetChoice {
-    #[allow(dead_code)]
-    pub fn label(self) -> &'static str {
-        match self {
-            DatasetChoice::BlobsRandom => "Random blobs",
-            DatasetChoice::Moons => "Two moons",
-            DatasetChoice::Iris => "Iris",
-        }
-    }
-}
 
 /// Editing sub-mode (lives in the Edit tab). Determines what a left-click does.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

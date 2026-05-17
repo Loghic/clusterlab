@@ -2,7 +2,7 @@
 set -euo pipefail
 cargo build --release --target wasm32-unknown-unknown
 mkdir -p dist
-cp target/wasm32-unknown-unknown/release/kmeans-viz.wasm dist/
+cp target/wasm32-unknown-unknown/release/clusterlab.wasm dist/
 cp web/index.html dist/
 if [ ! -f dist/mq_js_bundle.js ]; then
   curl -fL -o dist/mq_js_bundle.js \
