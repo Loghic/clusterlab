@@ -12,6 +12,14 @@
             overflow: hidden;
             background: #1a1c22;
         }
+        /* Prevent text selection when the user holds shift while
+           dragging the canvas. Also disables the iOS "select word"
+           bubble on long-press. */
+        canvas {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
     </style>
 </head>
 <body>
@@ -38,6 +46,30 @@
         above to the new version tag so the gl.js and the wasm crate versions
         stay in sync.
     -->
+    <script>
+        // Suppress the browser's right-click context menu over the canvas.
+        // Macroquad uses right-click to rotate the 3D camera and pan the
+        // 2D camera; without this listener the browser would show its
+        // OS menu on every right-click and the app would get stuck
+        // waiting for it to close.
+        //
+        // We attach the listener BEFORE loading the wasm so the canvas
+        // element already exists. Returning false (and calling
+        // preventDefault) is the cross-browser way to cancel.
+        //
+        // NOTE: mq_js_bundle.js declares its own top-level `const canvas`,
+        // so we must NOT use that name here — a name collision in the
+        // global scope triggers "redeclaration of const canvas" and the
+        // bundle fails to load. Use a different identifier.
+        (function () {
+            const glcanvas = document.getElementById('glcanvas');
+            glcanvas.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                return false;
+            });
+        })();
+    </script>
+    <script>var register_plugin;</script>
     <script src="mq_js_bundle.js"></script>
     <script>load("kmeans-viz.wasm");</script>
 </body>
