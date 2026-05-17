@@ -10,12 +10,15 @@ rustup target add wasm32-unknown-unknown
 cargo build --release --target wasm32-unknown-unknown
 
 mkdir -p dist
-cp target/wasm32-unknown-unknown/release/kmeans-viz.wasm dist/
+cp target/wasm32-unknown-unknown/release/clusterlab.wasm dist/
 cp web/index.html dist/
-# Use the version tag that matches Cargo.lock — this project pins
-# macroquad 0.4.5.
+# Use the bundle that matches Cargo.lock. This project pins macroquad
+# 0.4.14 and miniquad 0.4.8; the bundle on `master` currently matches.
+# Some `vX.Y.Z` version tags lack the `js/` folder and return 404 —
+# `master` is the reliable URL until a future macroquad release
+# breaks the alignment again.
 curl -fL -o dist/mq_js_bundle.js \
-  https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
+  https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
 
 basic-http-server dist/
 ```
@@ -62,26 +65,25 @@ If you load the page and see:
 Version mismatch: gl.js version is: 2, miniquad crate version is: 262144
 ```
 
-…you've linked the wrong `mq_js_bundle.js`. Three bundle sources are
-known-bad:
+…you've linked the wrong `mq_js_bundle.js`. Two known-bad sources:
 
 1. `https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js` — the
-   hosted copy is years old.
-2. `.../macroquad/master/js/mq_js_bundle.js` — the bundle on `master`
-   tracks the latest miniquad, which is newer than the macroquad
-   version this project pins in Cargo.lock.
-3. Any bundle from a different version tag than your macroquad version.
+   hosted copy is years old and tracks an ancient miniquad.
+2. Any bundle from a `vX.Y.Z` tag whose miniquad version differs from
+   the one in your Cargo.lock.
 
-The fix: vendor the bundle from **the version tag matching `macroquad`
-in Cargo.lock**. For this project (macroquad 0.4.5) use:
+The fix: vendor the bundle that matches `macroquad` / `miniquad` in
+`Cargo.lock`. This project currently pins macroquad 0.4.14 + miniquad
+0.4.8, and the bundle on `master` matches:
 
 ```
-https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
+https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
 ```
 
-If you upgrade macroquad, change the URL to the new tag (e.g.
-`v0.4.14`). The macroquad version, the miniquad version, and the
-`mq_js_bundle.js` version must all line up.
+Some older `vX.Y.Z` tags (like `v0.4.5`) don't include the `js/`
+folder at all and will 404 — use `master` in that case. If a future
+macroquad release on `master` ever bumps miniquad ahead of your
+Cargo.lock, downgrade by pinning to the matching version tag instead.
 
 After downloading the right bundle, **hard-refresh the browser**
 (Cmd+Shift+R / Ctrl+Shift+R). Browsers aggressively cache JS files, so
@@ -135,10 +137,10 @@ The mq_js_bundle.js loader works like this:
 sequenceDiagram
     participant H as index.html
     participant J as mq_js_bundle.js
-    participant W as kmeans-viz.wasm
+    participant W as clusterlab.wasm
     participant C as canvas#glcanvas
     H->>J: <script src="mq_js_bundle.js">
-    H->>J: load("kmeans-viz.wasm")
+    H->>J: load("clusterlab.wasm")
     J->>W: instantiate wasm with gl.js bindings
     J->>C: attach to canvas element
     W->>C: drawing calls via gl.js
@@ -152,7 +154,7 @@ Three things must line up:
 
 1. `index.html` references `mq_js_bundle.js` (relative path, same origin).
 2. `mq_js_bundle.js` is the version matching the miniquad in `Cargo.lock`.
-3. `kmeans-viz.wasm` exports the symbols `mq_js_bundle.js` expects (it
+3. `clusterlab.wasm` exports the symbols `mq_js_bundle.js` expects (it
    does, since macroquad's `#[macroquad::main]` macro emits them).
 
 ## Rust toolchain version

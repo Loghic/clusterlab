@@ -1,4 +1,4 @@
-//! kmeans-viz: pure logic crate root.
+//! clusterlab: pure logic crate root.
 //!
 //! This library contains the testable, render-agnostic parts of the project:
 //! - [`geometry`] — 2D/3D points, Voronoi, planes, sampling.

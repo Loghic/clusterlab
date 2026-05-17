@@ -2,9 +2,9 @@
 
 The project is split into two halves:
 
-- **Pure logic** (the `kmeans_viz` library crate): `geometry`, `kmeans`,
+- **Pure logic** (the `clusterlab` library crate): `geometry`, `kmeans`,
   `animation`, `datasets`. No macroquad imports. Fully unit-tested.
-- **Rendering & glue** (the `kmeans-viz` binary): `viz`, `app`, `main.rs`.
+- **Rendering & glue** (the `clusterlab` binary): `viz`, `app`, `main.rs`.
   Depends on macroquad. Not unit-tested — exercised by running the app.
 
 The boundary is enforced by which modules import `macroquad::*`. Don't

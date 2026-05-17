@@ -1,7 +1,7 @@
 //! Integration tests for centroid math.
 
-use kmeans_viz::geometry::{Point2, Point3};
-use kmeans_viz::kmeans::{mean_2d, mean_3d};
+use clusterlab::geometry::{Point2, Point3};
+use clusterlab::kmeans::{mean_2d, mean_3d};
 
 #[test]
 fn centroid_of_symmetric_cloud_is_origin() {

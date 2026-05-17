@@ -1,11 +1,11 @@
 //! Top-level controller: owns state and orchestrates algorithm + animation + viz.
 
-use kmeans_viz::animation::{Timeline2D, Timeline3D};
-use kmeans_viz::datasets::{iris_2d, iris_3d};
-use kmeans_viz::geometry::{
+use clusterlab::animation::{Timeline2D, Timeline3D};
+use clusterlab::datasets::{iris_2d, iris_3d};
+use clusterlab::geometry::{
     generate_blobs_2d, generate_blobs_3d, generate_moons_2d, generate_moons_3d, Point2, Point3,
 };
-use kmeans_viz::kmeans::{
+use clusterlab::kmeans::{
     assign_2d, assign_3d, init_random_2d, init_random_3d, step_2d, step_3d, Euclidean,
     KMeansState2D, KMeansState3D, StepOutcome,
 };
@@ -73,13 +73,27 @@ impl Controller {
             N_POINTS_3D,
             NUM_BLOBS,
             BLOB_STD_3D,
-            (-HALF_EXTENT, -HALF_EXTENT, -HALF_EXTENT, HALF_EXTENT, HALF_EXTENT, HALF_EXTENT),
+            (
+                -HALF_EXTENT,
+                -HALF_EXTENT,
+                -HALF_EXTENT,
+                HALF_EXTENT,
+                HALF_EXTENT,
+                HALF_EXTENT,
+            ),
         );
         let cs_2d = init_random_2d(&mut rng, k, WORLD_BOUNDS);
         let cs_3d = init_random_3d(
             &mut rng,
             k,
-            (-HALF_EXTENT, -HALF_EXTENT, -HALF_EXTENT, HALF_EXTENT, HALF_EXTENT, HALF_EXTENT),
+            (
+                -HALF_EXTENT,
+                -HALF_EXTENT,
+                -HALF_EXTENT,
+                HALF_EXTENT,
+                HALF_EXTENT,
+                HALF_EXTENT,
+            ),
         );
 
         let mut state_2d = KMeansState2D::new(pts_2d, cs_2d.clone());
@@ -128,7 +142,14 @@ impl Controller {
         self.state_3d.centroids = init_random_3d(
             &mut self.rng,
             self.k,
-            (-HALF_EXTENT, -HALF_EXTENT, -HALF_EXTENT, HALF_EXTENT, HALF_EXTENT, HALF_EXTENT),
+            (
+                -HALF_EXTENT,
+                -HALF_EXTENT,
+                -HALF_EXTENT,
+                HALF_EXTENT,
+                HALF_EXTENT,
+                HALF_EXTENT,
+            ),
         );
         self.initial_centroids_2d = self.state_2d.centroids.clone();
         self.initial_centroids_3d = self.state_3d.centroids.clone();
@@ -148,7 +169,14 @@ impl Controller {
             self.initial_centroids_3d = init_random_3d(
                 &mut self.rng,
                 self.k,
-                (-HALF_EXTENT, -HALF_EXTENT, -HALF_EXTENT, HALF_EXTENT, HALF_EXTENT, HALF_EXTENT),
+                (
+                    -HALF_EXTENT,
+                    -HALF_EXTENT,
+                    -HALF_EXTENT,
+                    HALF_EXTENT,
+                    HALF_EXTENT,
+                    HALF_EXTENT,
+                ),
             );
         }
         self.state_2d.centroids = self.initial_centroids_2d.clone();
@@ -204,9 +232,13 @@ impl Controller {
 
     fn regenerate_2d_for_current_dataset(&mut self) {
         let pts = match self.current_dataset {
-            DatasetChoice::BlobsRandom => {
-                generate_blobs_2d(&mut self.rng, N_POINTS_2D, NUM_BLOBS, BLOB_STD_2D, WORLD_BOUNDS)
-            }
+            DatasetChoice::BlobsRandom => generate_blobs_2d(
+                &mut self.rng,
+                N_POINTS_2D,
+                NUM_BLOBS,
+                BLOB_STD_2D,
+                WORLD_BOUNDS,
+            ),
             DatasetChoice::Moons => {
                 generate_moons_2d(&mut self.rng, N_POINTS_2D, MOONS_NOISE, WORLD_BOUNDS)
             }
@@ -400,7 +432,14 @@ impl Controller {
             self.state_3d.centroids = init_random_3d(
                 &mut self.rng,
                 self.k,
-                (-HALF_EXTENT, -HALF_EXTENT, -HALF_EXTENT, HALF_EXTENT, HALF_EXTENT, HALF_EXTENT),
+                (
+                    -HALF_EXTENT,
+                    -HALF_EXTENT,
+                    -HALF_EXTENT,
+                    HALF_EXTENT,
+                    HALF_EXTENT,
+                    HALF_EXTENT,
+                ),
             );
             self.state_3d.iteration = 0;
         } else {

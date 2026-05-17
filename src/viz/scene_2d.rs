@@ -1,7 +1,7 @@
 //! 2D scene rendering: points, centroids, Voronoi edges, via Camera2D.
 
 use crate::viz::camera2d::{Camera2D, WORLD_BOUNDS};
-use kmeans_viz::geometry::{compute_edges, Point2};
+use clusterlab::geometry::{compute_edges, Point2};
 use macroquad::prelude::*;
 
 /// Palette for cluster colors. 12 entries — matches the maximum `k`
@@ -11,18 +11,78 @@ use macroquad::prelude::*;
 /// other. If you add a 13th, double-check pairs of similar hues don't
 /// land on adjacent cluster indices in typical k-means runs.
 pub const PALETTE: &[Color] = &[
-    Color { r: 0.95, g: 0.30, b: 0.30, a: 1.0 }, // red
-    Color { r: 0.30, g: 0.65, b: 0.95, a: 1.0 }, // sky blue
-    Color { r: 0.40, g: 0.85, b: 0.40, a: 1.0 }, // green
-    Color { r: 0.95, g: 0.75, b: 0.20, a: 1.0 }, // yellow
-    Color { r: 0.75, g: 0.40, b: 0.90, a: 1.0 }, // purple
-    Color { r: 0.95, g: 0.55, b: 0.25, a: 1.0 }, // orange
-    Color { r: 0.30, g: 0.85, b: 0.85, a: 1.0 }, // cyan
-    Color { r: 0.95, g: 0.45, b: 0.65, a: 1.0 }, // pink
-    Color { r: 0.60, g: 0.90, b: 0.20, a: 1.0 }, // lime
-    Color { r: 0.95, g: 0.25, b: 0.95, a: 1.0 }, // magenta
-    Color { r: 0.20, g: 0.55, b: 0.55, a: 1.0 }, // teal
-    Color { r: 0.85, g: 0.70, b: 0.10, a: 1.0 }, // gold
+    Color {
+        r: 0.95,
+        g: 0.30,
+        b: 0.30,
+        a: 1.0,
+    }, // red
+    Color {
+        r: 0.30,
+        g: 0.65,
+        b: 0.95,
+        a: 1.0,
+    }, // sky blue
+    Color {
+        r: 0.40,
+        g: 0.85,
+        b: 0.40,
+        a: 1.0,
+    }, // green
+    Color {
+        r: 0.95,
+        g: 0.75,
+        b: 0.20,
+        a: 1.0,
+    }, // yellow
+    Color {
+        r: 0.75,
+        g: 0.40,
+        b: 0.90,
+        a: 1.0,
+    }, // purple
+    Color {
+        r: 0.95,
+        g: 0.55,
+        b: 0.25,
+        a: 1.0,
+    }, // orange
+    Color {
+        r: 0.30,
+        g: 0.85,
+        b: 0.85,
+        a: 1.0,
+    }, // cyan
+    Color {
+        r: 0.95,
+        g: 0.45,
+        b: 0.65,
+        a: 1.0,
+    }, // pink
+    Color {
+        r: 0.60,
+        g: 0.90,
+        b: 0.20,
+        a: 1.0,
+    }, // lime
+    Color {
+        r: 0.95,
+        g: 0.25,
+        b: 0.95,
+        a: 1.0,
+    }, // magenta
+    Color {
+        r: 0.20,
+        g: 0.55,
+        b: 0.55,
+        a: 1.0,
+    }, // teal
+    Color {
+        r: 0.85,
+        g: 0.70,
+        b: 0.10,
+        a: 1.0,
+    }, // gold
 ];
 
 pub fn cluster_color(idx: usize) -> Color {

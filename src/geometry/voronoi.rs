@@ -31,11 +31,7 @@ pub fn compute_edges(sites: &[Point2], bounds: (f32, f32, f32, f32)) -> Vec<Voro
 /// Perpendicular bisector of the segment a–b, clipped to the rectangle
 /// `(min_x, min_y, max_x, max_y)`. Returns the visible segment or `None`
 /// if it doesn't intersect the rectangle (or `a == b`).
-fn two_site_bisector(
-    a: Point2,
-    b: Point2,
-    bounds: (f32, f32, f32, f32),
-) -> Option<VoronoiEdge> {
+fn two_site_bisector(a: Point2, b: Point2, bounds: (f32, f32, f32, f32)) -> Option<VoronoiEdge> {
     let dx = b.x - a.x;
     let dy = b.y - a.y;
     if dx.abs() < 1e-6 && dy.abs() < 1e-6 {
@@ -102,9 +98,19 @@ fn voronoice_edges(sites: &[Point2], bounds: (f32, f32, f32, f32)) -> Vec<Vorono
 
     let voro_sites: Vec<Point> = sites
         .iter()
-        .map(|p| Point { x: p.x as f64, y: p.y as f64 })
+        .map(|p| Point {
+            x: p.x as f64,
+            y: p.y as f64,
+        })
         .collect();
-    let bbox = BoundingBox::new(Point { x: center_x, y: center_y }, width, height);
+    let bbox = BoundingBox::new(
+        Point {
+            x: center_x,
+            y: center_y,
+        },
+        width,
+        height,
+    );
 
     let diagram = match VoronoiBuilder::default()
         .set_sites(voro_sites)
@@ -183,10 +189,10 @@ mod tests {
         // Bisector goes through (50, 50) perpendicular to direction (1, 1)
         // i.e. line y = -x + 100 — should run from (0, 100) to (100, 0).
         let e = edges[0];
-        let touches_top_left = (e.from.x < 1.0 && e.from.y > 99.0)
-            || (e.to.x < 1.0 && e.to.y > 99.0);
-        let touches_bottom_right = (e.from.x > 99.0 && e.from.y < 1.0)
-            || (e.to.x > 99.0 && e.to.y < 1.0);
+        let touches_top_left =
+            (e.from.x < 1.0 && e.from.y > 99.0) || (e.to.x < 1.0 && e.to.y > 99.0);
+        let touches_bottom_right =
+            (e.from.x > 99.0 && e.from.y < 1.0) || (e.to.x > 99.0 && e.to.y < 1.0);
         assert!(touches_top_left, "got {:?}", e);
         assert!(touches_bottom_right, "got {:?}", e);
     }

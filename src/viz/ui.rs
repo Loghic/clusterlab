@@ -54,7 +54,11 @@ pub struct PanelSettings {
 
 impl Default for PanelSettings {
     fn default() -> Self {
-        Self { collapsed: false, tab: Tab::Main, edit_mode: EditMode::Off }
+        Self {
+            collapsed: false,
+            tab: Tab::Main,
+            edit_mode: EditMode::Off,
+        }
     }
 }
 
@@ -117,7 +121,11 @@ pub fn draw_panel(inputs: PanelInputs) -> UiState {
     let mut dataset_clicked: Option<DatasetChoice> = None;
     let mut clear_points_clicked = false;
 
-    let panel_h = if settings.collapsed { PANEL_HEIGHT_COLLAPSED } else { PANEL_HEIGHT_FULL };
+    let panel_h = if settings.collapsed {
+        PANEL_HEIGHT_COLLAPSED
+    } else {
+        PANEL_HEIGHT_FULL
+    };
 
     widgets::Window::new(hash!(), vec2(10.0, 10.0), vec2(PANEL_WIDTH, panel_h))
         .label("k-means controls")
@@ -133,7 +141,11 @@ pub fn draw_panel(inputs: PanelInputs) -> UiState {
                 &format!(
                     "iter {}  ({})",
                     inputs.iteration,
-                    if inputs.converged { "converged" } else { "running" }
+                    if inputs.converged {
+                        "converged"
+                    } else {
+                        "running"
+                    }
                 ),
             );
 
@@ -145,7 +157,11 @@ pub fn draw_panel(inputs: PanelInputs) -> UiState {
             ui.separator();
             for (tab, label) in [(Tab::Main, "Main"), (Tab::Edit, "Edit")] {
                 let active = settings.tab == tab;
-                let display = if active { format!("[{label}]") } else { label.to_string() };
+                let display = if active {
+                    format!("[{label}]")
+                } else {
+                    label.to_string()
+                };
                 if ui.button(None, display.as_str()) {
                     settings.tab = tab;
                     // Leaving the Edit tab disables edit clicks entirely so
@@ -245,7 +261,14 @@ fn draw_main_tab(
 
     ui.slider(hash!(), "auto s/step", 0.05f32..2.0f32, interval_local);
 
-    if ui.button(None, if *looping_local { "Loop ON" } else { "Loop OFF" }) {
+    if ui.button(
+        None,
+        if *looping_local {
+            "Loop ON"
+        } else {
+            "Loop OFF"
+        },
+    ) {
         *looping_local = !*looping_local;
     }
     ui.slider(hash!(), "hold s", 0.0f32..5.0f32, hold_local);
@@ -281,12 +304,23 @@ fn draw_main_tab(
     // --- View ---
     ui.separator();
     ui.label(None, "View");
-    if ui.button(None, if inputs.mode_3d { "Switch to 2D" } else { "Switch to 3D" }) {
+    if ui.button(
+        None,
+        if inputs.mode_3d {
+            "Switch to 2D"
+        } else {
+            "Switch to 3D"
+        },
+    ) {
         *toggle_mode = true;
     }
     if ui.button(
         None,
-        if inputs.show_voronoi { "Hide Voronoi" } else { "Show Voronoi" },
+        if inputs.show_voronoi {
+            "Hide Voronoi"
+        } else {
+            "Show Voronoi"
+        },
     ) {
         *toggle_voronoi = true;
     }

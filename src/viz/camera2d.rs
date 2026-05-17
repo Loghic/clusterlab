@@ -3,7 +3,7 @@
 //! Maintains a separate world space from the screen so that the user can
 //! place points anywhere with the mouse and still navigate around them.
 
-use kmeans_viz::geometry::Point2;
+use clusterlab::geometry::Point2;
 use macroquad::prelude::*;
 
 /// The world-space bounds we generate data within. The camera fits this

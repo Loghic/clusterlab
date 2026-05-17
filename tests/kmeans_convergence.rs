@@ -1,7 +1,7 @@
 //! Integration tests: end-to-end k-means runs on known datasets.
 
-use kmeans_viz::geometry::{Point2, Point3};
-use kmeans_viz::kmeans::{
+use clusterlab::geometry::{Point2, Point3};
+use clusterlab::kmeans::{
     run_to_completion_2d, step_3d, KMeansState2D, KMeansState3D, StepOutcome,
 };
 use rand::{rngs::StdRng, SeedableRng};

@@ -126,10 +126,7 @@ async fn main() {
             // Left-click on the 2D canvas does whatever edit_mode says.
             // Off (default outside the Edit tab) means clicks are ignored,
             // so the Main tab stays free of editing side-effects.
-            if !pointer_on_panel
-                && !camera_moved
-                && is_mouse_button_pressed(MouseButton::Left)
-            {
+            if !pointer_on_panel && !camera_moved && is_mouse_button_pressed(MouseButton::Left) {
                 let p = camera_2d.screen_to_world(mx, my, screen_width(), screen_height());
                 match panel_settings.edit_mode {
                     EditMode::Off => {}

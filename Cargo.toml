@@ -1,17 +1,20 @@
 [package]
-name = "kmeans-viz"
+name = "clusterlab"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.75"
 description = "Interactive k-means clustering visualizer in 2D and 3D"
 license = "MIT"
 authors = ["Matej Michalek"]
+repository = "https://github.com/Loghic/clusterlab"
+readme = "README.md"
 
 [lib]
-name = "kmeans_viz"
+name = "clusterlab"
 path = "src/lib.rs"
 
 [[bin]]
-name = "kmeans-viz"
+name = "clusterlab"
 path = "src/main.rs"
 
 [dependencies]

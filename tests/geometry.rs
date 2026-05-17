@@ -1,6 +1,6 @@
 //! Integration tests for the geometry module.
 
-use kmeans_viz::geometry::{compute_edges, Point2, Point3};
+use clusterlab::geometry::{compute_edges, Point2, Point3};
 
 #[test]
 fn voronoi_edges_form_loop_per_cell() {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>k-means visualizer</title>
+    <title>clusterlab</title>
     <style>
         html, body, canvas {
             margin: 0;
@@ -26,25 +26,28 @@
     <canvas id="glcanvas" tabindex="1"></canvas>
     <!--
         IMPORTANT: do NOT use https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js
-        and do NOT use the master branch of macroquad. Both produce:
+        That hosted file is stale and produces:
             "Version mismatch: gl.js version is: 2, miniquad crate version is: 262144"
 
-        Use the matching version tag for whatever macroquad version is in
-        Cargo.lock. This project pins macroquad 0.4.5, so fetch:
-            https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
+        Use the bundle that matches the macroquad version in Cargo.lock.
+        This project pins macroquad 0.4.14 and miniquad 0.4.8; the bundle
+        on `master` currently matches:
+            https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
 
         Build steps locally:
             cargo build --release --target wasm32-unknown-unknown
             mkdir -p dist
-            cp target/wasm32-unknown-unknown/release/kmeans-viz.wasm dist/
+            cp target/wasm32-unknown-unknown/release/clusterlab.wasm dist/
             cp web/index.html dist/
             curl -fL -o dist/mq_js_bundle.js \
-                https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
+                https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
             basic-http-server dist/
 
-        If you upgrade macroquad in Cargo.toml, change the v0.4.5 in the URL
-        above to the new version tag so the gl.js and the wasm crate versions
-        stay in sync.
+        If you bump macroquad in Cargo.toml and `master` starts tracking
+        a NEWER miniquad than your Cargo.lock has, you'll hit the
+        version-mismatch error again — pin to the matching `vX.Y.Z` tag
+        instead. (Some old tags lack the `js/` folder and 404; fall back
+        to `master` in that case.)
     -->
     <script>
         // Suppress the browser's right-click context menu over the canvas.
@@ -71,6 +74,6 @@
     </script>
     <script>var register_plugin;</script>
     <script src="mq_js_bundle.js"></script>
-    <script>load("kmeans-viz.wasm");</script>
+    <script>load("clusterlab.wasm");</script>
 </body>
 </html>

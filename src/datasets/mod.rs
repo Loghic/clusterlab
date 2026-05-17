@@ -36,7 +36,11 @@ fn parse_csv_features(csv: &str) -> Vec<Vec<f32>> {
             seen_first = true;
             // If the very first column doesn't parse as a number, it's a
             // header row — skip it.
-            if cols.first().map(|c| c.trim().parse::<f32>().is_err()).unwrap_or(false) {
+            if cols
+                .first()
+                .map(|c| c.trim().parse::<f32>().is_err())
+                .unwrap_or(false)
+            {
                 continue;
             }
         }
@@ -72,7 +76,10 @@ pub fn iris_2d() -> Dataset2D {
             Point2::new(x, y)
         })
         .collect();
-    Dataset2D { name: "iris (2D projection)", points: pts }
+    Dataset2D {
+        name: "iris (2D projection)",
+        points: pts,
+    }
 }
 
 /// Iris dataset projected to 3D via PCA on all 4 features.
@@ -91,7 +98,10 @@ pub fn iris_3d(half_extent: f32) -> Dataset3D {
         .collect();
 
     let pts = pca_project_3d(&features, half_extent * 0.9);
-    Dataset3D { name: "iris (PCA 3D)", points: pts }
+    Dataset3D {
+        name: "iris (PCA 3D)",
+        points: pts,
+    }
 }
 
 /// Standardize a (n_samples × n_features) matrix in place: each column
@@ -288,7 +298,11 @@ mod tests {
 
     #[test]
     fn standardize_makes_zero_mean_unit_std() {
-        let mut data = vec![[1.0, 10.0, 0.0, 5.0], [3.0, 20.0, 0.0, 7.0], [5.0, 30.0, 0.0, 9.0]];
+        let mut data = vec![
+            [1.0, 10.0, 0.0, 5.0],
+            [3.0, 20.0, 0.0, 7.0],
+            [5.0, 30.0, 0.0, 9.0],
+        ];
         standardize_columns(&mut data);
         // Column means
         for col in 0..4 {
@@ -297,8 +311,7 @@ mod tests {
         }
         // Column 0 had variance, so should now be unit-std. Column 2 was
         // constant, so should still be all zeros (no division by zero).
-        let std0: f32 =
-            (data.iter().map(|r| r[0].powi(2)).sum::<f32>() / 2.0).sqrt();
+        let std0: f32 = (data.iter().map(|r| r[0].powi(2)).sum::<f32>() / 2.0).sqrt();
         assert!((std0 - 1.0).abs() < 1e-4, "col0 std {std0}");
         for r in &data {
             assert!(r[2].abs() < 1e-5, "col2 should be all zeros");
@@ -349,9 +362,27 @@ mod tests {
         let mean_x: f32 = ds.points.iter().map(|p| p.x).sum::<f32>() / n;
         let mean_y: f32 = ds.points.iter().map(|p| p.y).sum::<f32>() / n;
         let mean_z: f32 = ds.points.iter().map(|p| p.z).sum::<f32>() / n;
-        let std_x: f32 = (ds.points.iter().map(|p| (p.x - mean_x).powi(2)).sum::<f32>() / n).sqrt();
-        let std_y: f32 = (ds.points.iter().map(|p| (p.y - mean_y).powi(2)).sum::<f32>() / n).sqrt();
-        let std_z: f32 = (ds.points.iter().map(|p| (p.z - mean_z).powi(2)).sum::<f32>() / n).sqrt();
+        let std_x: f32 = (ds
+            .points
+            .iter()
+            .map(|p| (p.x - mean_x).powi(2))
+            .sum::<f32>()
+            / n)
+            .sqrt();
+        let std_y: f32 = (ds
+            .points
+            .iter()
+            .map(|p| (p.y - mean_y).powi(2))
+            .sum::<f32>()
+            / n)
+            .sqrt();
+        let std_z: f32 = (ds
+            .points
+            .iter()
+            .map(|p| (p.z - mean_z).powi(2))
+            .sum::<f32>()
+            / n)
+            .sqrt();
         // Every axis should have at least 0.5 std (cube half-side is 5).
         assert!(std_x > 0.5, "PC1 std too small: {std_x}");
         assert!(std_y > 0.5, "PC2 std too small: {std_y}");

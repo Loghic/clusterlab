@@ -3,7 +3,7 @@
 
 use crate::viz::camera::OrbitCamera;
 use crate::viz::scene_2d::cluster_color;
-use kmeans_viz::geometry::{bisector_planes, Point3};
+use clusterlab::geometry::{bisector_planes, Point3};
 use macroquad::prelude::*;
 
 /// World bounds for 3D (centered cube around the origin).
@@ -19,7 +19,12 @@ pub fn draw_scene(
 ) {
     set_camera(&camera.camera3d());
 
-    draw_grid(20, 0.5, Color::new(0.4, 0.4, 0.45, 1.0), Color::new(0.2, 0.2, 0.25, 1.0));
+    draw_grid(
+        20,
+        0.5,
+        Color::new(0.4, 0.4, 0.45, 1.0),
+        Color::new(0.2, 0.2, 0.25, 1.0),
+    );
 
     if show_planes && centroids.len() >= 2 {
         draw_bisector_planes(centroids);
@@ -100,7 +105,11 @@ fn draw_triangle_filled_3d(a: Point3, b: Point3, c: Point3, color: Color) {
 }
 
 fn lerp3(a: Point3, b: Point3, t: f32) -> Point3 {
-    Point3::new(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t)
+    Point3::new(
+        a.x + (b.x - a.x) * t,
+        a.y + (b.y - a.y) * t,
+        a.z + (b.z - a.z) * t,
+    )
 }
 
 fn to_v(p: Point3) -> Vec3 {

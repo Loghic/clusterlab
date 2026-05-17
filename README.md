@@ -1,4 +1,9 @@
-# kmeans-viz
+# clusterlab
+
+[![CI](https://github.com/Loghic/clusterlab/actions/workflows/ci.yml/badge.svg)](https://github.com/Loghic/clusterlab/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/Loghic/clusterlab/branch/main/graph/badge.svg)](https://codecov.io/gh/Loghic/clusterlab)
+[![Rust Version](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Interactive k-means clustering visualizer in Rust. Runs natively on
 desktop and in the browser via WebAssembly. Animates each iteration so
@@ -26,8 +31,8 @@ You need a stable Rust toolchain (1.75+ for native; 1.77+ for the wasm
 build).
 
 ```bash
-git clone <your-fork>
-cd kmeans-viz
+git clone https://github.com/Loghic/clusterlab.git
+cd clusterlab
 cargo run --release
 ```
 
@@ -44,16 +49,17 @@ rustup target add wasm32-unknown-unknown
 cargo build --release --target wasm32-unknown-unknown
 
 mkdir -p dist
-cp target/wasm32-unknown-unknown/release/kmeans-viz.wasm dist/
+cp target/wasm32-unknown-unknown/release/clusterlab.wasm dist/
 cp web/index.html dist/
 
-# The macroquad JS loader must match the macroquad version in Cargo.lock.
-# This project is pinned to macroquad 0.4.5, so use the v0.4.5 tag's bundle.
-# Using `master` (or the hosted not-fl3.github.io copy) WILL produce
-# "Version mismatch: gl.js version is: 2, miniquad crate version is: 262144"
-# at load time because those targets assume a newer miniquad.
+# The macroquad JS loader must match the miniquad version in Cargo.lock.
+# This project pins macroquad 0.4.14 (miniquad 0.4.8), and the bundle on
+# `master` currently matches. If a version tag URL gives 404, fall back
+# to `master`. Do NOT use the stale not-fl3.github.io hosted copy — that
+# produces "Version mismatch: gl.js version is: 2, miniquad crate
+# version is: 262144" at load time.
 curl -fL -o dist/mq_js_bundle.js \
-  https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
+  https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
 
 # Any static server will do; for example:
 cargo install basic-http-server
@@ -182,3 +188,5 @@ keeps `k` stable and prevents NaN centroids. Details in
 ## License
 
 MIT. See [`LICENSE`](LICENSE).
+
+Author: Matej Michalek.

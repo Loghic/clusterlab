@@ -160,10 +160,7 @@ pub fn generate_moons_3d<R: Rng>(
     let cx = (min_x + max_x) * 0.5;
     let cy = (min_y + max_y) * 0.5;
     let cz = (min_z + max_z) * 0.5;
-    let radius = (max_x - min_x)
-        .min(max_y - min_y)
-        .min(max_z - min_z)
-        * 0.30;
+    let radius = (max_x - min_x).min(max_y - min_y).min(max_z - min_z) * 0.30;
     let noise_std = radius * noise;
 
     let mut out = Vec::with_capacity(n);
@@ -172,7 +169,11 @@ pub fn generate_moons_3d<R: Rng>(
         let theta: f32 = rng.gen_range(0.0..TAU);
         let (x, y, z) = if upper {
             // Ring 1: in the xy-plane, offset by -radius/2 in x.
-            (theta.cos() * radius - radius * 0.5, theta.sin() * radius, 0.0)
+            (
+                theta.cos() * radius - radius * 0.5,
+                theta.sin() * radius,
+                0.0,
+            )
         } else {
             // Ring 2: in the yz-plane, offset by +radius/2 in x.
             (radius * 0.5, theta.cos() * radius, theta.sin() * radius)
@@ -198,8 +199,10 @@ mod tests {
     fn normal_distribution_mean_is_close() {
         let mut rng = StdRng::seed_from_u64(0);
         let n = 5000;
-        let mean: f32 =
-            (0..n).map(|_| sample_normal(&mut rng, 10.0, 2.0)).sum::<f32>() / n as f32;
+        let mean: f32 = (0..n)
+            .map(|_| sample_normal(&mut rng, 10.0, 2.0))
+            .sum::<f32>()
+            / n as f32;
         // With 5000 samples, mean should be within ~0.3 of 10.0
         assert!((mean - 10.0).abs() < 0.5, "got mean {mean}");
     }
@@ -210,8 +213,7 @@ mod tests {
         let n = 5000;
         let samples: Vec<f32> = (0..n).map(|_| sample_normal(&mut rng, 0.0, 3.0)).collect();
         let mean: f32 = samples.iter().sum::<f32>() / n as f32;
-        let var: f32 =
-            samples.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / (n - 1) as f32;
+        let var: f32 = samples.iter().map(|x| (x - mean).powi(2)).sum::<f32>() / (n - 1) as f32;
         let std = var.sqrt();
         // Should be within ~10% of 3.0
         assert!((std - 3.0).abs() < 0.4, "got std {std}");

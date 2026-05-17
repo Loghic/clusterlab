@@ -35,15 +35,18 @@ These are non-negotiable and break the build / loader if violated:
    loader (`__wbindgen_placeholder__` errors at runtime). On wasm we use
    `getrandom`'s `custom` feature and register a tiny xorshift shim in
    `src/main.rs` instead.
-3. **Never link `mq_js_bundle.js` from `not-fl3.github.io`, from `master`,
-   or from any version tag that doesn't match `macroquad` in
-   `Cargo.lock`.** All three produce `Version mismatch: gl.js version
-   is: 2, miniquad crate version is: 262144` at load time. This project
-   pins macroquad 0.4.5, so the bundle URL is
-   `https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js`.
-   If you bump macroquad, update the URL in `web/index.html` (comment),
-   `README.md`, `docs/wasm.md`, and `.github/workflows/wasm.yml` in the
-   same commit.
+3. **Never link `mq_js_bundle.js` from `not-fl3.github.io`, or from a
+   version tag that doesn't match `macroquad` in `Cargo.lock`.** Both
+   produce `Version mismatch: gl.js version is: 2, miniquad crate
+   version is: 262144` at load time. This project pins macroquad 0.4.14
+   (miniquad 0.4.8), and the bundle on `master` currently matches:
+   `https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js`.
+   If a `vX.Y.Z` tag URL gives 404 (some tags don't include `js/`), use
+   `master`. If you bump macroquad and the bundle on `master` now
+   tracks a newer miniquad than your Cargo.lock has, downgrade by
+   pinning to the matching version tag. Update the URL in
+   `web/index.html` (comment), `README.md`, `docs/wasm.md`, and
+   `.github/workflows/wasm.yml` in the same commit.
 4. **Don't delete `.cargo/config.toml`.** It contains
    `link-arg=--allow-undefined` for the wasm target, required since
    Rust 1.96 removed that flag from defaults. Without it, the wasm
@@ -163,3 +166,24 @@ automation).
   macroquad-free.
 - New UI control: `src/viz/ui.rs`, threading the value through
   `PanelInputs` → `UiState` → `main.rs` → controller setter.
+
+## README badges
+
+`README.md` and `Cargo.toml` reference `https://github.com/Loghic/clusterlab`.
+Four badges live at the top of README.md:
+
+1. **CI**: `.github/workflows/ci.yml` runs fmt + clippy + tests on every
+   push/PR to `main`.
+2. **codecov**: `.github/workflows/coverage.yml` runs `cargo-llvm-cov`
+   and uploads to Codecov. Public repos need no token; private repos
+   need a `CODECOV_TOKEN` secret (already wired up in the workflow,
+   just uncomment the token line).
+3. **Rust version**: static shields.io badge pinned to `1.75+` (matches
+   `rust-version` in Cargo.toml). Bump both if the MSRV moves.
+4. **License**: static shields.io badge linking to `LICENSE`. We're MIT.
+
+The CI badge auto-updates from GitHub Actions API. The codecov badge
+shows "no data" until the first coverage upload completes — which
+won't happen until you push the workflow to the GitHub default branch.
+Don't panic if it looks broken on first push; it usually takes 1–2
+minutes after CI completes.

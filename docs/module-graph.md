@@ -5,7 +5,7 @@ flowchart TD
     main[main.rs] --> app
     main --> viz
     app --> viz
-    app --> lib[lib.rs / kmeans_viz]
+    app --> lib[lib.rs / clusterlab]
     viz --> lib
     lib --> kmeans
     lib --> geometry
