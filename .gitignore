@@ -1,0 +1,35 @@
+# Rust / Cargo build artifacts
+/target
+**/*.rs.bk
+Cargo.lock.bak
+
+# WASM build output (built locally before serving)
+/dist
+
+# Editor / IDE local state
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.orig
+
+# macOS / Windows clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local environment / secrets (just in case)
+.env
+.env.local
+.envrc
+
+# Profiling / debugging output
+*.profraw
+*.profdata
+flamegraph.svg
+perf.data*
+
+# Optional: keep Cargo.lock OUT of .gitignore for binary crates.
+# This crate produces a binary, so committing Cargo.lock IS recommended
+# for reproducible builds. Don't add Cargo.lock here.

@@ -19,12 +19,7 @@ pub fn draw_scene(
 ) {
     set_camera(&camera.camera3d());
 
-    draw_grid(
-        20,
-        0.5,
-        Color::new(0.4, 0.4, 0.45, 1.0),
-        Color::new(0.2, 0.2, 0.25, 1.0),
-    );
+    draw_grid(20, 0.5, Color::new(0.4, 0.4, 0.45, 1.0), Color::new(0.2, 0.2, 0.25, 1.0));
 
     if show_planes && centroids.len() >= 2 {
         draw_bisector_planes(centroids);
@@ -37,9 +32,12 @@ pub fn draw_scene(
 
     for (i, c) in centroids.iter().enumerate() {
         let color = cluster_color(i);
-        // Outer dark "outline" sphere then a smaller colored core.
-        draw_sphere(vec3(c.x, c.y, c.z), 0.26, None, BLACK);
-        draw_sphere(vec3(c.x, c.y, c.z), 0.22, None, color);
+        // Single solid colored sphere. The previous version drew a larger
+        // black sphere then a smaller colored one inside — the inner
+        // sphere was fully occluded so centroids appeared black.
+        // Centroids stand out from data points by being ~3× their radius
+        // (0.26 vs 0.08).
+        draw_sphere(vec3(c.x, c.y, c.z), 0.26, None, color);
     }
 
     set_default_camera();
@@ -102,11 +100,7 @@ fn draw_triangle_filled_3d(a: Point3, b: Point3, c: Point3, color: Color) {
 }
 
 fn lerp3(a: Point3, b: Point3, t: f32) -> Point3 {
-    Point3::new(
-        a.x + (b.x - a.x) * t,
-        a.y + (b.y - a.y) * t,
-        a.z + (b.z - a.z) * t,
-    )
+    Point3::new(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t)
 }
 
 fn to_v(p: Point3) -> Vec3 {
