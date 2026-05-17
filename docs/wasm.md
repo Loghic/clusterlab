@@ -12,14 +12,47 @@ cargo build --release --target wasm32-unknown-unknown
 mkdir -p dist
 cp target/wasm32-unknown-unknown/release/kmeans-viz.wasm dist/
 cp web/index.html dist/
+# Use the version tag that matches Cargo.lock — this project pins
+# macroquad 0.4.5.
 curl -fL -o dist/mq_js_bundle.js \
-  https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
+  https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
 
 basic-http-server dist/
 ```
 
 `.github/workflows/wasm.yml` does the same on CI and deploys to GitHub
 Pages.
+
+## The `--allow-undefined` link error (Rust 1.96+)
+
+If you see linker errors like:
+
+```
+rust-lld: error: undefined symbol: glGenVertexArrays
+rust-lld: error: undefined symbol: now
+rust-lld: error: undefined symbol: glActiveTexture
+...
+```
+
+…you're on Rust 1.96 or newer, which removed the default `--allow-undefined`
+linker flag for wasm targets. macroquad/miniquad rely on it: they declare
+GL functions and clock helpers as `extern "C"` so the `mq_js_bundle.js`
+JS loader can provide them at runtime.
+
+The fix is committed in `.cargo/config.toml` at the repo root:
+
+```toml
+[target.wasm32-unknown-unknown]
+rustflags = ["-C", "link-arg=--allow-undefined"]
+```
+
+This restores the old behavior. The symbols ARE intentionally undefined
+and provided by the JS loader, which is exactly what `--allow-undefined`
+supports. Don't remove this file unless macroquad/miniquad start using
+`#[link(wasm_import_module = "env")]` on their extern blocks — at that
+point the workaround becomes unnecessary.
+
+Background: https://blog.rust-lang.org/2026/04/04/changes-to-webassembly-targets-and-handling-undefined-symbols/
 
 ## The gl.js version-mismatch trap
 
@@ -29,18 +62,30 @@ If you load the page and see:
 Version mismatch: gl.js version is: 2, miniquad crate version is: 262144
 ```
 
-…you've linked the wrong `mq_js_bundle.js`. The hosted copy at
-`https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js` is stale
-relative to current `miniquad` 0.4.x crates. The fix is to vendor the
-matching bundle from the macroquad repo:
+…you've linked the wrong `mq_js_bundle.js`. Three bundle sources are
+known-bad:
+
+1. `https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js` — the
+   hosted copy is years old.
+2. `.../macroquad/master/js/mq_js_bundle.js` — the bundle on `master`
+   tracks the latest miniquad, which is newer than the macroquad
+   version this project pins in Cargo.lock.
+3. Any bundle from a different version tag than your macroquad version.
+
+The fix: vendor the bundle from **the version tag matching `macroquad`
+in Cargo.lock**. For this project (macroquad 0.4.5) use:
 
 ```
-https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
+https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
 ```
 
-If you upgrade `macroquad` in `Cargo.toml`, re-download `mq_js_bundle.js`
-from the matching tag (e.g. `.../macroquad/v0.4.14/js/mq_js_bundle.js`)
-so the gl.js loader and the miniquad crate stay in sync.
+If you upgrade macroquad, change the URL to the new tag (e.g.
+`v0.4.14`). The macroquad version, the miniquad version, and the
+`mq_js_bundle.js` version must all line up.
+
+After downloading the right bundle, **hard-refresh the browser**
+(Cmd+Shift+R / Ctrl+Shift+R). Browsers aggressively cache JS files, so
+a soft reload may keep showing the old bundle's error.
 
 ## The getrandom compile-error trap
 
@@ -103,7 +148,7 @@ sequenceDiagram
     end
 ```
 
-[118;1:3uThree things must line up:
+Three things must line up:
 
 1. `index.html` references `mq_js_bundle.js` (relative path, same origin).
 2. `mq_js_bundle.js` is the version matching the miniquad in `Cargo.lock`.

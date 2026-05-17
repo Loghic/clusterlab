@@ -18,25 +18,25 @@
     <canvas id="glcanvas" tabindex="1"></canvas>
     <!--
         IMPORTANT: do NOT use https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js
-        That hosted file is stale and produces:
+        and do NOT use the master branch of macroquad. Both produce:
             "Version mismatch: gl.js version is: 2, miniquad crate version is: 262144"
 
-        Instead, fetch the bundle that matches the macroquad version this project
-        depends on. The official source is in the macroquad repo, under js/:
-            https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
+        Use the matching version tag for whatever macroquad version is in
+        Cargo.lock. This project pins macroquad 0.4.5, so fetch:
+            https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
 
         Build steps locally:
             cargo build --release --target wasm32-unknown-unknown
             mkdir -p dist
             cp target/wasm32-unknown-unknown/release/kmeans-viz.wasm dist/
             cp web/index.html dist/
-            curl -L -o dist/mq_js_bundle.js \
-                https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
+            curl -fL -o dist/mq_js_bundle.js \
+                https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
             basic-http-server dist/
 
-        If you ever upgrade macroquad in Cargo.toml, re-download mq_js_bundle.js
-        from the matching tag (e.g. .../macroquad/v0.4.14/js/mq_js_bundle.js)
-        so the gl.js and the wasm crate versions match.
+        If you upgrade macroquad in Cargo.toml, change the v0.4.5 in the URL
+        above to the new version tag so the gl.js and the wasm crate versions
+        stay in sync.
     -->
     <script src="mq_js_bundle.js"></script>
     <script>load("kmeans-viz.wasm");</script>

@@ -47,12 +47,13 @@ mkdir -p dist
 cp target/wasm32-unknown-unknown/release/kmeans-viz.wasm dist/
 cp web/index.html dist/
 
-# The macroquad JS loader must match the miniquad version in Cargo.lock.
-# Always vendor it from the macroquad repo rather than linking to the
-# hosted not-fl3.github.io copy (which is stale and produces
-# "Version mismatch: gl.js version is: 2, miniquad crate version is: 262144").
+# The macroquad JS loader must match the macroquad version in Cargo.lock.
+# This project is pinned to macroquad 0.4.5, so use the v0.4.5 tag's bundle.
+# Using `master` (or the hosted not-fl3.github.io copy) WILL produce
+# "Version mismatch: gl.js version is: 2, miniquad crate version is: 262144"
+# at load time because those targets assume a newer miniquad.
 curl -fL -o dist/mq_js_bundle.js \
-  https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
+  https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js
 
 # Any static server will do; for example:
 cargo install basic-http-server

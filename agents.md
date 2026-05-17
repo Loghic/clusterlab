@@ -18,7 +18,7 @@ Wrap commands in backticks so they can be copy-pasted directly.
 CI runs fmt-check + clippy-deny-warnings + tests. Pre-commit hooks run the
 same locally. **Both must pass before any commit.**
 
-System packages required on Linux for the desktop buil[118;1:3ud:
+System packages required on Linux for the desktop build:
 `libx11-dev libxi-dev libgl1-mesa-dev libasound2-dev pkg-config`.
 
 ## Hard rules
@@ -35,15 +35,24 @@ These are non-negotiable and break the build / loader if violated:
    loader (`__wbindgen_placeholder__` errors at runtime). On wasm we use
    `getrandom`'s `custom` feature and register a tiny xorshift shim in
    `src/main.rs` instead.
-3. **Never link to `https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js`.**
-   That hosted file is stale and produces `Version mismatch: gl.js version
-   is: 2, miniquad crate version is: 262144` at load time. Always vendor
-   `mq_js_bundle.js` from `https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js`
-   into `dist/`. The `.github/workflows/wasm.yml` already does this.
-4. **Every pure-logic function gets a test.** Anything in `kmeans/`,
+3. **Never link `mq_js_bundle.js` from `not-fl3.github.io`, from `master`,
+   or from any version tag that doesn't match `macroquad` in
+   `Cargo.lock`.** All three produce `Version mismatch: gl.js version
+   is: 2, miniquad crate version is: 262144` at load time. This project
+   pins macroquad 0.4.5, so the bundle URL is
+   `https://raw.githubusercontent.com/not-fl3/macroquad/v0.4.5/js/mq_js_bundle.js`.
+   If you bump macroquad, update the URL in `web/index.html` (comment),
+   `README.md`, `docs/wasm.md`, and `.github/workflows/wasm.yml` in the
+   same commit.
+4. **Don't delete `.cargo/config.toml`.** It contains
+   `link-arg=--allow-undefined` for the wasm target, required since
+   Rust 1.96 removed that flag from defaults. Without it, the wasm
+   linker fails with "undefined symbol: glGenVertexArrays" and ~20
+   similar errors. See `docs/wasm.md` for details.
+5. **Every pure-logic function gets a test.** Anything in `kmeans/`,
    `geometry/`, `animation/`, or `datasets/` should have at least one
    unit test. Match-arm completeness and trivial getters are exempt.
-5. **Never use `unwrap()` in non-test code** unless the invariant is
+6. **Never use `unwrap()` in non-test code** unless the invariant is
    documented inline (one-line comment justifying it). `expect()` with a
    reason string is acceptable. Use `?` or `match` everywhere else.
 

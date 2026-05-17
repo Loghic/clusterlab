@@ -1,0 +1,21 @@
+# Rust 1.96+ removed the default `--allow-undefined` linker flag for
+# wasm32 targets. macroquad/miniquad rely on it: they declare functions
+# like `glGenVertexArrays` and `now` as `extern "C"` so they can be
+# provided by `mq_js_bundle.js` at load time. Without this flag the
+# wasm linker fails with:
+#
+#   rust-lld: error: undefined symbol: glGenVertexArrays
+#   rust-lld: error: undefined symbol: now
+#   ...
+#
+# Restoring the old behavior here is safe: the symbols ARE intentionally
+# undefined and provided by the JS loader, which is exactly what
+# --allow-undefined supports.
+#
+# Background: https://blog.rust-lang.org/2026/04/04/changes-to-webassembly-targets-and-handling-undefined-symbols/
+#
+# A proper fix would be patching miniquad to use `#[link(wasm_import_module = "env")]`
+# on its extern blocks, but until upstream ships that we use this config.
+
+[target.wasm32-unknown-unknown]
+rustflags = ["-C", "link-arg=--allow-undefined"]
