@@ -1,0 +1,52 @@
+name: WASM build & deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain (with wasm target)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Build wasm
+        run: cargo build --release --target wasm32-unknown-unknown
+
+      - name: Assemble dist/
+        run: |
+          mkdir -p dist
+          cp target/wasm32-unknown-unknown/release/kmeans-viz.wasm dist/
+          cp web/index.html dist/
+          # Download the macroquad/miniquad JS loader that matches the crate
+          # version. The hosted not-fl3.github.io copy is stale and triggers
+          # "Version mismatch: gl.js version is: 2, miniquad crate version is: 262144".
+          curl -fL -o dist/mq_js_bundle.js \
+            https://raw.githubusercontent.com/not-fl3/macroquad/master/js/mq_js_bundle.js
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

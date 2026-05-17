@@ -1,0 +1,39 @@
+[package]
+name = "kmeans-viz"
+version = "0.1.0"
+edition = "2021"
+description = "Interactive k-means clustering visualizer in 2D and 3D"
+license = "MIT"
+authors = ["Matej Michalek"]
+
+[lib]
+name = "kmeans_viz"
+path = "src/lib.rs"
+
+[[bin]]
+name = "kmeans-viz"
+path = "src/main.rs"
+
+[dependencies]
+macroquad = "0.4"
+rand = "0.8"
+voronoice = "0.2"
+
+# On wasm we register a tiny no-op `getrandom` backend via the "custom"
+# feature. We never actually call `getrandom`/`thread_rng`/etc on wasm —
+# `StdRng::seed_from_u64(miniquad::date::now() as u64)` does all our
+# seeding — but `getrandom` is pulled in transitively by `rand` and
+# refuses to compile on wasm32-unknown-unknown without a backend.
+#
+# Using "custom" instead of "js" is critical: "js" pulls `wasm-bindgen`,
+# which breaks the simple miniquad/macroquad wasm loader (`mq_js_bundle.js`)
+# with `__wbindgen_placeholder__` errors at load time.
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["custom"] }
+
+[dev-dependencies]
+approx = "0.5"
+
+[profile.release]
+opt-level = 3
+lto = true

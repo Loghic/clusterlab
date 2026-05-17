@@ -1,0 +1,11 @@
+/Users/loghi/Documents/GitHub/kmeans-viz/target/debug/deps/voronoice-5bac26b301250cea.d: /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/lib.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/bounding_box.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/cell_builder.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/voronoi_cell.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/iterator.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/utils.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/voronoi_builder.rs
+
+/Users/loghi/Documents/GitHub/kmeans-viz/target/debug/deps/libvoronoice-5bac26b301250cea.rmeta: /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/lib.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/bounding_box.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/cell_builder.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/voronoi_cell.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/iterator.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/utils.rs /Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/voronoi_builder.rs
+
+/Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/lib.rs:
+/Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/bounding_box.rs:
+/Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/cell_builder.rs:
+/Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/voronoi_cell.rs:
+/Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/iterator.rs:
+/Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/utils.rs:
+/Users/loghi/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/voronoice-0.2.0/src/voronoi_builder.rs:
