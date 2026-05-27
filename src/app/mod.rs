@@ -2,4 +2,4 @@
 
 pub mod controller;
 
-pub use controller::Controller;
+pub use controller::{Controller, DEFAULT_N_POINTS, MAX_N_POINTS, MIN_N_POINTS};

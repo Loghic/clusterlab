@@ -42,7 +42,7 @@ mod wasm_rand_shim {
 #[cfg(target_arch = "wasm32")]
 getrandom::register_custom_getrandom!(wasm_rand_shim::fill_bytes);
 
-use clusterlab::app::Controller;
+use clusterlab::app::{Controller, MAX_N_POINTS, MIN_N_POINTS};
 use macroquad::prelude::*;
 use viz::{
     camera::OrbitCamera,
@@ -154,6 +154,9 @@ async fn main() {
             looping: controller.looping,
             hold_seconds: controller.hold_seconds,
             point_count: controller.point_count(),
+            n_points: controller.n_points,
+            n_points_min: MIN_N_POINTS,
+            n_points_max: MAX_N_POINTS,
         };
         let ui = draw_panel(inputs);
         panel_settings = ui.settings;
@@ -179,6 +182,9 @@ async fn main() {
         }
         if (ui.hold_seconds - controller.hold_seconds).abs() > 1e-3 {
             controller.set_hold_seconds(ui.hold_seconds);
+        }
+        if ui.n_points != controller.n_points {
+            controller.set_n_points(ui.n_points);
         }
         if ui.reset_clicked {
             controller.reset_centroids_random();

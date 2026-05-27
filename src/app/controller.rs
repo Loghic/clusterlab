@@ -19,8 +19,11 @@ const CONVERGENCE_THRESHOLD: f32 = 0.05;
 const ANIMATION_DURATION: f32 = 0.5;
 const FAST_ANIMATION_DURATION: f32 = 0.1;
 const MAX_ITERS_RUN_TO_CONVERGENCE: usize = 200;
-const N_POINTS_2D: usize = 220;
-const N_POINTS_3D: usize = 220;
+/// Default number of points generated for Blobs/Moons in either mode.
+/// User-adjustable at runtime via the UI panel and clamped to this range.
+pub const DEFAULT_N_POINTS: usize = 220;
+pub const MIN_N_POINTS: usize = 10;
+pub const MAX_N_POINTS: usize = 2000;
 const NUM_BLOBS: usize = 4;
 const BLOB_STD_2D: f32 = 55.0;
 const BLOB_STD_3D: f32 = 0.55;
@@ -47,6 +50,11 @@ pub struct Controller {
     pub looping: bool,
     pub hold_seconds: f32,
     pub current_dataset: DatasetChoice,
+    /// Number of points to generate next time Blobs/Moons is (re)generated.
+    /// The Iris dataset ignores this (its size is fixed by the data file).
+    /// Changes here do NOT touch the currently displayed points; they take
+    /// effect on the next "Regenerate" / dataset switch.
+    pub n_points: usize,
     pub timeline_2d: Option<Timeline2D>,
     pub timeline_3d: Option<Timeline3D>,
 
@@ -67,8 +75,9 @@ pub struct Controller {
 impl Controller {
     pub fn new(seed: u64, k: usize) -> Self {
         let mut rng = StdRng::seed_from_u64(seed);
-        let pts_2d = generate_blobs_2d(&mut rng, N_POINTS_2D, NUM_BLOBS, BLOB_STD_2D, WORLD_BOUNDS);
-        let pts_3d = generate_blobs_3d(&mut rng, N_POINTS_3D, NUM_BLOBS, BLOB_STD_3D, bounds_3d());
+        let n_points = DEFAULT_N_POINTS;
+        let pts_2d = generate_blobs_2d(&mut rng, n_points, NUM_BLOBS, BLOB_STD_2D, WORLD_BOUNDS);
+        let pts_3d = generate_blobs_3d(&mut rng, n_points, NUM_BLOBS, BLOB_STD_3D, bounds_3d());
         let cs_2d = init_random_2d(&mut rng, k, WORLD_BOUNDS);
         let cs_3d = init_random_3d(&mut rng, k, bounds_3d());
 
@@ -94,6 +103,7 @@ impl Controller {
             looping: false,
             hold_seconds: 1.5,
             current_dataset: DatasetChoice::BlobsRandom,
+            n_points,
             timeline_2d: None,
             timeline_3d: None,
             initial_centroids_2d: cs_2d,
@@ -188,16 +198,22 @@ impl Controller {
         let pts = match self.current_dataset {
             DatasetChoice::BlobsRandom => generate_blobs_2d(
                 &mut self.rng,
-                N_POINTS_2D,
+                self.n_points,
                 NUM_BLOBS,
                 BLOB_STD_2D,
                 WORLD_BOUNDS,
             ),
             DatasetChoice::Moons => {
-                generate_moons_2d(&mut self.rng, N_POINTS_2D, MOONS_NOISE, WORLD_BOUNDS)
+                generate_moons_2d(&mut self.rng, self.n_points, MOONS_NOISE, WORLD_BOUNDS)
             }
+            // Iris is a fixed dataset (150 samples); n_points doesn't apply.
             DatasetChoice::Iris => iris_2d().points,
         };
+        // Keep the documented `assignments.len() == points.len()` invariant.
+        // `assign_2d` indexes `assignments[idx]` for every point, so it must
+        // be sized to match BEFORE the next assign call. The actual values
+        // will be overwritten by `after_centroids_changed` -> `assign_2d`.
+        self.state_2d.assignments = vec![0; pts.len()];
         self.state_2d.points = pts;
         self.state_2d.iteration = 0;
     }
@@ -206,15 +222,25 @@ impl Controller {
         let bounds = bounds_3d();
         let pts = match self.current_dataset {
             DatasetChoice::BlobsRandom => {
-                generate_blobs_3d(&mut self.rng, N_POINTS_3D, NUM_BLOBS, BLOB_STD_3D, bounds)
+                generate_blobs_3d(&mut self.rng, self.n_points, NUM_BLOBS, BLOB_STD_3D, bounds)
             }
             DatasetChoice::Moons => {
-                generate_moons_3d(&mut self.rng, N_POINTS_3D, MOONS_NOISE, bounds)
+                generate_moons_3d(&mut self.rng, self.n_points, MOONS_NOISE, bounds)
             }
+            // Iris is a fixed dataset (150 samples); n_points doesn't apply.
             DatasetChoice::Iris => iris_3d(HALF_EXTENT).points,
         };
+        self.state_3d.assignments = vec![0; pts.len()];
         self.state_3d.points = pts;
         self.state_3d.iteration = 0;
+    }
+
+    /// Set the target point count for future Blobs/Moons generations.
+    /// Clamped to `[MIN_N_POINTS, MAX_N_POINTS]`. Does NOT regenerate the
+    /// currently displayed points — that happens on the next "Regenerate"
+    /// click or dataset switch. The Iris dataset is unaffected.
+    pub fn set_n_points(&mut self, value: usize) {
+        self.n_points = value.clamp(MIN_N_POINTS, MAX_N_POINTS);
     }
 
     /// Wipe all points (in the active mode). Useful before entering

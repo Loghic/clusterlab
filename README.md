@@ -103,7 +103,8 @@ shrink it down to watch the animation.
 | Run | `Reset centroids (random)` | Re-randomize centroids; saves a snapshot |
 | Run | `Clear (to initial)` | Restore the last snapshot |
 | Data | `Blobs` / `Moons` / `Iris` | Switch dataset (works in 2D and 3D) |
-| Data | `Regenerate (same dataset)` | New sample from the same source |
+| Data | `n pts` slider | Point count for the next Blobs/Moons regeneration (10–2000). Iris is fixed at 150 and ignores this. |
+| Data | `Regenerate (same dataset)` | New sample from the same source, using the current `n pts` value |
 | Data | `Clear all points` | Wipe the canvas |
 | View | `Switch to 2D` / `3D` | Toggle mode |
 | View | `Show Voronoi` / `Hide` | Toggle cell boundaries (edges in 2D, planes in 3D) |

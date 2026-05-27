@@ -63,6 +63,10 @@ pub struct UiState {
     pub reset_camera_clicked: bool,
     pub dataset_clicked: Option<DatasetChoice>,
     pub clear_points_clicked: bool,
+    /// Desired Blobs/Moons point count for the next regeneration. Iris
+    /// ignores this. The host should pipe this into `Controller::set_n_points`
+    /// each frame; the controller does not regenerate on change.
+    pub n_points: usize,
 }
 
 pub const PANEL_WIDTH: f32 = 310.0;
@@ -81,6 +85,11 @@ pub struct PanelInputs {
     pub looping: bool,
     pub hold_seconds: f32,
     pub point_count: usize,
+    /// Current target count for Blobs/Moons regeneration. Shown by the
+    /// slider in the Data section.
+    pub n_points: usize,
+    pub n_points_min: usize,
+    pub n_points_max: usize,
 }
 
 /// Draw the control panel and return updated state.
@@ -91,6 +100,7 @@ pub fn draw_panel(inputs: PanelInputs) -> UiState {
     let mut interval_local = inputs.auto_run_interval;
     let mut auto_run_local = inputs.auto_run;
     let mut looping_local = inputs.looping;
+    let mut n_points_f32 = inputs.n_points as f32;
 
     let mut step_clicked = false;
     let mut run_to_convergence_clicked = false;
@@ -169,6 +179,7 @@ pub fn draw_panel(inputs: PanelInputs) -> UiState {
                     &mut interval_local,
                     &mut looping_local,
                     &mut hold_local,
+                    &mut n_points_f32,
                     &mut step_clicked,
                     &mut run_to_convergence_clicked,
                     &mut reset_clicked,
@@ -201,6 +212,7 @@ pub fn draw_panel(inputs: PanelInputs) -> UiState {
         reset_camera_clicked,
         dataset_clicked,
         clear_points_clicked,
+        n_points: (n_points_f32.round() as usize).clamp(inputs.n_points_min, inputs.n_points_max),
     }
 }
 
@@ -213,6 +225,7 @@ fn draw_main_tab(
     interval_local: &mut f32,
     looping_local: &mut bool,
     hold_local: &mut f32,
+    n_points_f32: &mut f32,
     step_clicked: &mut bool,
     run_to_convergence_clicked: &mut bool,
     reset_clicked: &mut bool,
@@ -276,6 +289,22 @@ fn draw_main_tab(
     if ui.button(None, "Iris") {
         *dataset_clicked = Some(DatasetChoice::Iris);
     }
+    // Point-count slider for Blobs/Moons. Iris is a fixed dataset and
+    // ignores this value. The change takes effect on the next
+    // "Regenerate" click or dataset switch.
+    ui.slider(
+        hash!(),
+        "n pts",
+        (inputs.n_points_min as f32)..(inputs.n_points_max as f32),
+        n_points_f32,
+    );
+    ui.label(
+        None,
+        &format!(
+            "n = {} (Blobs/Moons; applies on regen)",
+            n_points_f32.round() as usize
+        ),
+    );
     if ui.button(None, "Regenerate (same dataset)") {
         *regen_clicked = true;
     }

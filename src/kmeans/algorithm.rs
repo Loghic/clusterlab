@@ -65,6 +65,12 @@ pub fn assign_2d<D: Distance<Point2>>(state: &mut KMeansState2D, metric: &D) {
         !state.centroids.is_empty(),
         "cannot assign with zero centroids"
     );
+    // Invariant from `KMeansState2D::new`. If a caller swapped out
+    // `state.points` without resizing `state.assignments`, fix it here
+    // so we never index out of bounds in release builds.
+    if state.assignments.len() != state.points.len() {
+        state.assignments.resize(state.points.len(), 0);
+    }
     for (idx, p) in state.points.iter().enumerate() {
         let mut best = 0usize;
         let mut best_d = metric.distance_squared(p, &state.centroids[0]);
@@ -85,6 +91,9 @@ pub fn assign_3d<D: Distance<Point3>>(state: &mut KMeansState3D, metric: &D) {
         !state.centroids.is_empty(),
         "cannot assign with zero centroids"
     );
+    if state.assignments.len() != state.points.len() {
+        state.assignments.resize(state.points.len(), 0);
+    }
     for (idx, p) in state.points.iter().enumerate() {
         let mut best = 0usize;
         let mut best_d = metric.distance_squared(p, &state.centroids[0]);
